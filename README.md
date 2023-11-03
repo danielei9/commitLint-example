@@ -65,7 +65,7 @@ yarn husky install
 We can add a prepare step which enables the husky hooks upon installation:
 
 ```bash
-npm set-script prepare "husky install"
+npm pkg set scripts.prepare="husky install"
 ```
 
 ```bash
