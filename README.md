@@ -87,3 +87,33 @@ Nos va a dar una serie de errores por que no seguimos lo convencional.
 git commit -m "ci: initialised basic js project, added commitlint and husky to lint commit messages"
 ```
 
+# How to Set Up the Workflow GitHub Actions
+
+We need to make a new folder called .github and then a new folder in it called workflows. Then we can add a file called commitlint.yml and add the workflow configuration.
+
+File:  .github/workflows/commitlint.yml
+
+```bash
+
+name: Lint Commit Messages
+on: [pull_request, push]
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v4
+```
+
+This workflow will run every time code is pushed to GitHub and every time a pull request is opened. To test it, let's commit and push our code.
+
+```bash
+git add -A
+git commit -m "ci(commitlint,workflow): added GitHub action workflow to run commitlint on push and pr"
+git push origin master
+```
+
+Now, we can go to the GitHub.com repository and then the actions > tab and we can see the workflow.
