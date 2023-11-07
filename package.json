@@ -10,5 +10,8 @@
   },
   "scripts": {
     "prepare": "husky install"
+  },
+  "dependencies": {
+    "@conventional-commits/parser": "^0.4.1"
   }
 }

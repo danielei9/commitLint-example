@@ -94,7 +94,6 @@ We need to make a new folder called .github and then a new folder in it called w
 File:  .github/workflows/commitlint.yml
 
 ```bash
-
 name: Lint Commit Messages
 on: [pull_request, push]
 
