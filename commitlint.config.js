@@ -6,7 +6,7 @@ module.exports = {
         "scope-enum": [
           2,
           "always",
-          ["python", "node", "lint"]
+          ["python", "node", "lint", "general"]
         ]
       }
 }

@@ -1,73 +1,49 @@
+require('dotenv').config();
+const { organizeAndFilterCommits,
+    execCommand,
+    bumpVersion,
+    transformCommitRawToObject,
+    getBranch,
+    updatePythonVersionFile, updateNodeVersionFile,
+    readPythonVersion,
+    findVersionBump
+} = require('./utils.js');
 
-const { promisify } = require('util');
-const fs = require('fs');
-const { parser } = require('@conventional-commits/parser');
-const { execCommand, bumpVersion, transformCommitRawToObject, getBranch, getPullRequestNumber } = require('./utils.js');
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
-
-const nodePathVersionFile = './package.json'
-const pythonPathVersionFile = './package.json'
+const nodePathVersionFile = process.env.NODE_PATH_VERSION_FILE;
+const pythonPathVersionFile = process.env.PYTHON_PATH_VERSION_FILE;
 
 async function main() {
     // Parse commits from last version
-    const rawCommits = await execCommand(`git log --oneline --format=%s`);
+    // const rawCommits = await execCommand(`git log --oneline --format=%s origin..iotPlatform `);
+    const rawCommits = await execCommand(`git log --oneline --format=%s origin..${getBranch()}`);
+    const commits = organizeAndFilterCommits(rawCommits)
 
-    const commits = rawCommits.split('\n')
-        .filter(Boolean)  // Remove empty lines
-        .map(commit => {
-            try {
-                return parser(commit);
-            } catch (error) {
-                // Handle parsing errors (commits that don't follow the format)
-                console.error(`Error parsing commit: "${commit}" - ${error.message}`);
-                return null;
-            }
-        })
-        .filter(commit => commit !== null);  // Remove null entries (parsing errors)
-
-    let versionBump = 'patch';
-    let currentVersion;
-    let packageJsonPath;
-
+    let updatedNodeVersion, updatedPythonVersion;
     for (const commit of commits) {
-        if (commit.scope == 'python'){
-            currentVersion = require(nodePathVersionFile).version;
-            packageJsonPath = './package.json';
-        }
-        if (commit.scope == 'node'){
-            currentVersion = require(pythonPathVersionFile).version;
-            packageJsonPath = './package.json';
-        }
-
+        // parse commit
         const commit_parsed = transformCommitRawToObject(commit.children[0].children)
+        // find version Bump
+        let versionBump = findVersionBump(commit_parsed)
 
-        if (commit_parsed.type.includes("!") || commit_parsed.type.includes("BREAKING CHANGE")) {
-            versionBump = 'major'; 
-            console.log("major")
+        // Specify Scope
+        if (commit_parsed.scope == 'python') {
+            let currentPythonVersion = updatedPythonVersion || readPythonVersion(pythonPathVersionFile);
+            updatedPythonVersion = bumpVersion(currentPythonVersion, versionBump);
         }
-        if (commit_parsed.type === 'feat') {
-            versionBump = 'minor';
-            console.log("minor")
+        else if (commit_parsed.scope == 'node') {
+            let currentNodeVersion = updatedNodeVersion || require(nodePathVersionFile).version;
+            updatedNodeVersion = bumpVersion(currentNodeVersion, versionBump);
         }
-        console.log("commit",commit_parsed)
+        else {
+            // console.log("Can't specify scope.")
+        }
     }
-    
-    const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
-
-    throw new Error("No package json selected")
-    // Update version following the rule
-    const newVersion = bumpVersion(packageJson.version, versionBump);
-    packageJson.version = newVersion;
-
-    // Write changes in package.json
-    await writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2));
-
-    console.log(`Version Updated: ${newVersion}`);
+    // Update Files
+    updatePythonVersionFile(updatedPythonVersion, pythonPathVersionFile)
+    updateNodeVersionFile(updatedNodeVersion, nodePathVersionFile)
 }
 
 main().catch(error => {
     console.error(error);
     process.exit(1);
 });
-

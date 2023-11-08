@@ -1,1 +1,30 @@
+name: Dynamic Version
 
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  push:
+    branches:
+      - main
+
+jobs:
+  execute_script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Get branch name
+        id: branch_name
+        run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
+
+      - name: Execute script
+        run: node index.js ${{ steps.branch_name.outputs.branch }}
