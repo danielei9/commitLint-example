@@ -15,7 +15,7 @@ const pythonPathVersionFile = process.env.PYTHON_PATH_VERSION_FILE;
 async function main() {
     // Parse commits from last version
     // const rawCommits = await execCommand(`git log --oneline --format=%s origin..iotPlatform `);
-    const rawCommits = await execCommand(`git log --oneline --format=%s origin..${getBranch()}`);
+    const rawCommits = await execCommand(`git log --oneline --format=%s origin..develop`);
     const commits = organizeAndFilterCommits(rawCommits)
 
     let updatedNodeVersion, updatedPythonVersion;
