@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - master
 
 jobs:
   execute_script:
@@ -27,4 +28,4 @@ jobs:
         run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
 
       - name: Execute script
-        run: npm install && node index.js ${{ steps.branch_name.outputs.branch }}
+        run: npm install && node index.js

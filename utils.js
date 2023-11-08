@@ -11,6 +11,7 @@ function getBranch() {
     const branchRef = process.env.GITHUB_REF;
     console.log(`La ruta de la rama es: ${branchRef}`);
 }
+// Just in case commits provide from git log
 function organizeAndFilterCommits(rawCommits) {
     const commits = rawCommits.split('\n')
         .filter(Boolean)  // Remove empty lines
@@ -112,4 +113,21 @@ async function changePythonVersion(filename, newVersion) {
     }
 }
 
-module.exports = { organizeAndFilterCommits, execCommand, bumpVersion, transformCommitRawToObject, getPullRequestNumber, getBranch, readPythonVersion, findVersionBump, updatePythonVersionFile, updateNodeVersionFile }
+const axios = require('axios');
+
+const getCommits = async () => {
+    const apiUrl = 'https://api.github.com/repos/gesinen/gesinen-api-chripstack/pulls/29/commits';
+    const config = {
+        headers: {
+            'Authorization': 'token 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',
+        }
+    };
+    const commits = await axios.get(apiUrl, config)
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    return commits.data.map((item)=>{return item.commit.message})
+}
+
+
+module.exports = { getCommits, organizeAndFilterCommits, execCommand, bumpVersion, transformCommitRawToObject, getPullRequestNumber, getBranch, readPythonVersion, findVersionBump, updatePythonVersionFile, updateNodeVersionFile }

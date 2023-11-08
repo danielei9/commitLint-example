@@ -14,8 +14,8 @@ const pythonPathVersionFile = process.env.PYTHON_PATH_VERSION_FILE;
 
 async function main() {
     // Parse commits from last version
-    // const rawCommits = await execCommand(`git log --oneline --format=%s origin..iotPlatform `);
-    const rawCommits = await execCommand(`git log --oneline --format=%s origin..HEAD`);
+    // const rawCommits = await execCommand(`git log --oneline --format=%s origin..develop`);
+
     const commits = organizeAndFilterCommits(rawCommits)
 
     let updatedNodeVersion, updatedPythonVersion;
@@ -43,7 +43,30 @@ async function main() {
     updateNodeVersionFile(updatedNodeVersion, nodePathVersionFile)
 }
 
-main().catch(error => {
-    console.error(error);
-    process.exit(1);
-});
+// main().catch(error => {
+//     console.error(error);
+//     process.exit(1);
+// });
+const axios = require('axios');
+
+const getCommit = async () => {
+    
+    const organization = 'danielei9';
+    const repo = 'commitLint-example'
+    const commitSha = '16fbe8ec40733175fa5b8f94852cac4e596c072b'
+
+    const apiUrl = `https://api.github.com/repos/${organization}/${repo}/commits/${commitSha}`;
+    const config = {
+        headers: {
+            'Authorization': 'token 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',
+        }
+    };
+    const commit = await axios.get(apiUrl, config)
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    console.log(commit.data.commit.message)
+    return
+}
+
+getCommit()
