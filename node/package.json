@@ -1,0 +1,17 @@
+{
+  "name": "commitlint_example",
+  "version": "2.34.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@commitlint/cli": "^18.2.0",
+    "@commitlint/config-conventional": "^18.1.0",
+    "husky": "^8.0.3"
+  },
+  "scripts": {
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@conventional-commits/parser": "^0.4.1"
+  }
+}

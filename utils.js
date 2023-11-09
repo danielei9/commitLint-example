@@ -129,6 +129,32 @@ const getCommits = async () => {
         });
     return commits.data.map((item) => { return item.commit.message })
 }
+function parseConventionalCommit(message) {
+    const commitRegex = /^(?<type>\w+)(\((?<scope>[\w/]+)\))?!?:\s?(?<description>.*)$/;
+    const match = message.match(commitRegex);
+  
+    if (match) {
+      const { type, scope, description } = match.groups;
+      const result = {
+        type,
+        description,
+      };
+  
+      if (scope) {
+        result.scope = scope;
+      }
+  
+      if (message.includes('!')) {
+        result['breaking-change'] = true;
+      }
+  
+      return result;
+    } else {
+      // Manejar mensajes de commit no válidos
+      console.error('El mensaje de commit no sigue el formato Conventional Commits.');
+      return null;
+    }
+  }
+  
 
-
-module.exports = { getCommits, organizeAndFilterCommits, execCommand, bumpVersion, transformCommitRawToObject, getPullRequestNumber, getBranch, readPythonVersion, findVersionBump, updatePythonVersionFile, updateNodeVersionFile }
+module.exports = { parseConventionalCommit, getCommits, organizeAndFilterCommits, execCommand, bumpVersion, transformCommitRawToObject, getPullRequestNumber, getBranch, readPythonVersion, findVersionBump, updatePythonVersionFile, updateNodeVersionFile }
