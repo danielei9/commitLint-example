@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { organizeAndFilterCommits,
+const { parseConventionalCommit,
     execCommand,
     bumpVersion,
     transformCommitRawToObject,
@@ -13,12 +13,10 @@ const nodePathVersionFile = process.env.NODE_PATH_VERSION_FILE;
 const pythonPathVersionFile = process.env.PYTHON_PATH_VERSION_FILE;
 
 async function main() {
-    // Parse commits from last version
-    // const rawCommits = await execCommand(`git log --oneline --format=%s origin..develop`);
-
-    const commits = organizeAndFilterCommits(rawCommits)
-
+    // const commit = getCommit(process.argv[2])
+    const commit = "fix(lint): lint"
     let updatedNodeVersion, updatedPythonVersion;
+
     for (const commit of commits) {
         // parse commit
         const commit_parsed = transformCommitRawToObject(commit.children[0].children)
@@ -43,13 +41,13 @@ async function main() {
     updateNodeVersionFile(updatedNodeVersion, nodePathVersionFile)
 }
 
-// main().catch(error => {
-//     console.error(error);
-//     process.exit(1);
-// });
+main().catch(error => {
+    console.error(error);
+    process.exit(1);
+});
 const axios = require('axios');
 
-const getCommit = async () => {
+const getCommit = async (token) => {
     
     const organization = 'danielei9';
     const repo = 'commitLint-example'
@@ -58,15 +56,14 @@ const getCommit = async () => {
     const apiUrl = `https://api.github.com/repos/${organization}/${repo}/commits/${commitSha}`;
     const config = {
         headers: {
-            'Authorization': 'token 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',
+            'Authorization': `token ${token}`,
         }
     };
     const commit = await axios.get(apiUrl, config)
         .catch(error => {
             console.error('Error:', error);
         });
-    console.log(commit.data.commit.message)
-    return
+    return parseConventionalCommit(commit.data.commit.message)
 }
 
-getCommit()
+console.log(getCommit())
