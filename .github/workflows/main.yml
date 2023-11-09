@@ -28,5 +28,5 @@ jobs:
         id: branch_name
         run: echo "::set-output name=branch::$(git rev-parse --abbrev-ref HEAD)"
 
-      - name: Execute script
-        run: npm install && node index.js
+      - name: Execute script 
+        run: npm install && node index.js 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

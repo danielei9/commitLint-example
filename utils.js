@@ -15,9 +15,10 @@ function getBranch() {
 function organizeAndFilterCommits(rawCommits) {
     const commits = rawCommits.split('\n')
         .filter(Boolean)  // Remove empty lines
-        .map(commit => {
+        .map((commit,index) => {
             try {
-                return parser(commit);
+                if (index < 5)
+                    return parser(commit);
             } catch (error) {
                 // Handle parsing errors (commits that don't follow the format)
                 console.error(`Error parsing commit: "${commit}" - ${error.message}`);
@@ -126,7 +127,7 @@ const getCommits = async () => {
         .catch(error => {
             console.error('Error:', error);
         });
-    return commits.data.map((item)=>{return item.commit.message})
+    return commits.data.map((item) => { return item.commit.message })
 }
 
 
