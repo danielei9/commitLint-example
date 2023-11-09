@@ -1,18 +1,20 @@
 require('dotenv').config();
 const {
-    execCommand,parseConventionalCommit,
+    execCommand, parseConventionalCommit,
     bumpVersion,
     updatePythonVersionFile, updateNodeVersionFile,
     readPythonVersion,
     findVersionBump
 } = require('./utils.js');
 
-const nodePathVersionFile = process.env.NODE_PATH_VERSION_FILE;
-const pythonPathVersionFile = process.env.PYTHON_PATH_VERSION_FILE;
-
+const nodePathVersionFile = "./node/package.json";
+const pythonPathVersionFile = "./node/package.json"
+console.log("START")
 async function main() {
     // Parse commits from last version (in case they come from git log)
     const rawCommits = await execCommand(`git show --oneline --format=%s HEAD`);
+    console.log("EXECUTED COMMAND")
+
     const commitTitle = rawCommits.split("\n\ndiff --git")[0]
     const commitObject = parseConventionalCommit(commitTitle)
     let updatedNodeVersion, updatedPythonVersion;
